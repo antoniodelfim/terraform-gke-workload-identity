@@ -1,106 +1,286 @@
-# Workload Identity Federation - GKE
+<div align="center">
 
-## Visão geral
+# 🔐 Workload Identity Federation - GKE 🔐
 
-Este módulo implementa a configuração de Workload Identity Federation para o Google Kubernetes Engine (GKE), permitindo que pods no Kubernetes acessem recursos do Google Cloud de forma segura sem necessidade de armazenar credenciais estáticas.
+[![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![GCP](https://img.shields.io/badge/Google_Cloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)](https://cloud.google.com/)
+[![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-O Workload Identity Federation é o método recomendado pelo Google para permitir que workloads em execução no GKE acessem serviços do Google Cloud de forma segura, substituindo o uso de chaves de conta de serviço estáticas por tokens temporários obtidos automaticamente.
+<img src="https://cloud.google.com/static/kubernetes-engine/images/federated-identity.svg" alt="Workload Identity Diagram" width="450px">
 
-## Recursos provisionados
+</div>
 
-* Definições de roles IAM para PubSub e Storage
-* Configurações e outputs para Workload Identity Federation
-* Estrutura de namespaces para organização de aplicações
-* Service Accounts do Google Cloud (GSAs) vinculadas às Service Accounts do Kubernetes (KSAs)
+## 📋 Visão geral
 
-## Estrutura do módulo
+Este módulo implementa a configuração de **Workload Identity Federation** para o Google Kubernetes Engine (GKE), permitindo que pods no Kubernetes acessem recursos do Google Cloud de forma segura sem necessidade de armazenar credenciais estáticas.
+
+> 💡 O Workload Identity Federation é o método **recomendado pelo Google** para permitir que workloads em execução no GKE acessem serviços do Google Cloud de forma segura, substituindo o uso de chaves de conta de serviço estáticas por tokens temporários obtidos automaticamente.
+
+## 🎁 Recursos provisionados
+
+<table>
+  <tr>
+    <td>
+      <ul>
+        <li>🔑 Definições de roles IAM para PubSub e Storage</li>
+        <li>🔗 Configurações e outputs para Workload Identity Federation</li>
+        <li>📂 Estrutura de namespaces para organização de aplicações</li>
+        <li>👤 Service Accounts do Google Cloud (GSAs) vinculadas às Service Accounts do Kubernetes (KSAs)</li>
+      </ul>
+    </td>
+    <td>
+      <img src="https://cloud.google.com/static/blog/products/containers-kubernetes/kubernetes-engine-now-supports-workload-identity/image1.png" width="300px" alt="Workload Identity">
+    </td>
+  </tr>
+</table>
+
+## 📂 Estrutura do Módulo
+
+<div align="center">
+
+### Arquitetura do Projeto
+
+</div>
 
 ```
 gke-workload-identity/
-├─ outputs.tf             # Outputs para referência externa (usa outputs individuais do módulo common)
-├─ provider.tf            # Configuração do provider (usa outputs individuais do módulo common)
-├─ ARCHITECTURE.md        # Documentação da arquitetura e princípios aplicados
-├─ common/                # Módulo de variáveis e configurações comuns
-│   ├─ variables.tf       # Variáveis centralizadas e definições de locals
-│   └─ outputs.tf         # Outputs individuais para cada variável local (sem referência direta a locals)
-├─ modules/               # Módulos reutilizáveis
-│   ├─ workload-identity/ # Módulo para configuração de identidade
-│   │   ├─ main.tf       # Lógica principal para configuração de Workload Identity
-│   │   ├─ variables.tf   # Variáveis específicas para configuração de identidade
-│   │   └─ outputs.tf     # Outputs relacionados à configuração de identidade
-│   └─ iam-roles/        # Módulo para gerenciamento de roles IAM
-│       ├─ main.tf       # Lógica para adicionar e remover roles IAM
-│       ├─ variables.tf   # Variáveis específicas para gerenciamento de roles
-│       └─ outputs.tf     # Outputs relacionados às roles gerenciadas
-└─ namespaces/            # Organização por namespaces
-    └─ sre/               # Namespace SRE
-        └─ apps/          # Aplicações no namespace SRE
-            ├─ sre-app/    # Exemplo de aplicação SRE
-            │   └─ main.tf  # Configuração da aplicação (usa outputs individuais do módulo common)
-            └─ sre-app2/   # Outro exemplo de aplicação SRE
-                └─ main.tf  # Configuração da aplicação (usa outputs individuais do módulo common)
+├─ outputs.tf             # Outputs para referência externa 💾
+├─ provider.tf            # Configuração do provider 🔗
+├─ ARCHITECTURE.md        # Documentação da arquitetura 📝
+├─ common/                # Módulo de variáveis compartilhadas 🔐
+│   ├─ variables.tf       # Variáveis centralizadas 📊
+│   └─ outputs.tf         # Outputs individuais 💾
+├─ modules/               # Módulos reutilizáveis 💻
+│   ├─ workload-identity/ # Configuração de identidade 👤
+│   │   ├─ main.tf       # Lógica principal ⚙️
+│   │   ├─ variables.tf   # Variáveis específicas 📊
+│   │   └─ outputs.tf     # Outputs relacionados 💾
+│   └─ iam-roles/        # Gerenciamento de roles IAM 🔑
+│       ├─ main.tf       # Lógica para roles ⚙️
+│       ├─ variables.tf   # Variáveis específicas 📊
+│       └─ outputs.tf     # Outputs relacionados 💾
+└─ namespaces/            # Organização por namespaces 📂
+    └─ sre/               # Namespace SRE 🛠️
+        └─ apps/          # Aplicações 💻
+            ├─ sre-app/    # Exemplo de aplicação 📦
+            │   └─ main.tf  # Configuração ⚙️
+            └─ sre-app2/   # Outro exemplo 📦
+                └─ main.tf  # Configuração ⚙️
 ```
 
-### Explicação da Estrutura
+<div align="center">
+<details>
+<summary><b>📍 Clique para ver o diagrama de arquitetura</b></summary>
+<br>
 
-1. **Raiz do Projeto**:
-   - `outputs.tf`: Exporta informações importantes do projeto usando os outputs individuais do módulo common
-   - `provider.tf`: Configura os providers Terraform (Google, Kubernetes) usando os outputs individuais do módulo common
-   - `ARCHITECTURE.md`: Documentação detalhada sobre os princípios arquiteturais e sua aplicação prática
+```mermaid
+graph TD
+    A[gke-workload-identity] --> B[common]
+    A --> C[modules]
+    A --> D[namespaces]
+    
+    B --> B1[variables.tf]
+    B --> B2[outputs.tf]
+    
+    C --> C1[workload-identity]
+    C --> C2[iam-roles]
+    
+    C1 --> C1A[main.tf]
+    C1 --> C1B[variables.tf]
+    C1 --> C1C[outputs.tf]
+    
+    C2 --> C2A[main.tf]
+    C2 --> C2B[variables.tf]
+    C2 --> C2C[outputs.tf]
+    
+    D --> D1[sre]
+    D1 --> D1A[apps]
+    D1A --> D1A1[sre-app]
+    D1A --> D1A2[sre-app2]
+    
+    D1A1 --> D1A1A[main.tf]
+    D1A2 --> D1A2A[main.tf]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:1px
+    style C fill:#bbf,stroke:#333,stroke-width:1px
+    style D fill:#bbf,stroke:#333,stroke-width:1px
+```
 
-2. **Módulo Common**:
-   - Centraliza todas as variáveis e configurações compartilhadas
-   - `variables.tf`: Define variáveis e locals que são usados em todo o projeto
-   - `outputs.tf`: Exporta cada variável local como um output individual (sem referência direta a `locals`)
+</details>
+</div>
 
-3. **Módulos Reutilizáveis**:
-   - **workload-identity**: Gerencia a configuração de identidade entre Kubernetes e Google Cloud
-   - **iam-roles**: Gerencia permissões IAM de forma declarativa, com mecanismos para adicionar e remover roles
+### 📍 Explicação da Estrutura
 
-4. **Namespaces e Aplicações**:
-   - Organização hierárquica por namespace e aplicação
-   - Cada aplicação importa o módulo common e usa seus outputs individuais
-   - Cada aplicação utiliza os módulos workload-identity e iam-roles para configurar suas permissões
+<table>
+  <tr>
+    <th align="center">💾 Componente</th>
+    <th align="center">📃 Descrição</th>
+  </tr>
+  <tr>
+    <td>
+      <b>🌐 Raiz do Projeto</b>
+    </td>
+    <td>
+      <ul>
+        <li><code>outputs.tf</code>: Exporta informações importantes do projeto</li>
+        <li><code>provider.tf</code>: Configura os providers Terraform</li>
+        <li><code>ARCHITECTURE.md</code>: Documentação detalhada da arquitetura</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>🔐 Módulo Common</b>
+    </td>
+    <td>
+      <ul>
+        <li>Centraliza todas as variáveis e configurações compartilhadas</li>
+        <li><code>variables.tf</code>: Define variáveis e locals para todo o projeto</li>
+        <li><code>outputs.tf</code>: Exporta cada variável local como um output individual</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>💻 Módulos Reutilizáveis</b>
+    </td>
+    <td>
+      <ul>
+        <li><b>workload-identity</b>: Gerencia a configuração de identidade entre Kubernetes e Google Cloud</li>
+        <li><b>iam-roles</b>: Gerencia permissões IAM de forma declarativa, com mecanismos para adicionar e remover roles</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>📂 Namespaces e Aplicações</b>
+    </td>
+    <td>
+      <ul>
+        <li>Organização hierárquica por namespace e aplicação</li>
+        <li>Cada aplicação importa o módulo common e usa seus outputs individuais</li>
+        <li>Cada aplicação utiliza os módulos workload-identity e iam-roles para configurar suas permissões</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
-## Abordagem Arquitetural e Refatoração
+## 🛠️ Abordagem Arquitetural e Refatoração
+
+<div align="center">
+
+![Architecture](https://img.shields.io/badge/Architecture-Modular-blue?style=for-the-badge)
+![Design](https://img.shields.io/badge/Design-DRY-orange?style=for-the-badge)
+![Security](https://img.shields.io/badge/Security-Least_Privilege-green?style=for-the-badge)
+
+</div>
 
 Este projeto foi refatorado seguindo princípios de engenharia de software para melhorar a manutenção, reutilização e segurança. Abaixo estão as principais escolhas arquiteturais e suas justificativas:
 
-### 1. Separação de Responsabilidades
+### 1. 🔗 Separação de Responsabilidades
+
+<div align="center">
+<img src="https://img.shields.io/badge/Princípio-Modularidade-blue" alt="Modularidade">
+</div>
 
 Adotamos uma arquitetura modular com clara separação de responsabilidades:
 
-- **Módulo `workload-identity`**: Responsável apenas pela configuração da identidade (GSAs e KSAs)
-- **Módulo `iam-roles`**: Responsável exclusivamente pelo gerenciamento de permissões IAM
-- **Módulo `common`**: Centraliza variáveis e configurações compartilhadas
+<table>
+  <tr>
+    <th align="center">💾 Módulo</th>
+    <th align="center">📃 Responsabilidade</th>
+  </tr>
+  <tr>
+    <td align="center"><code>workload-identity</code></td>
+    <td>Configuração da identidade (GSAs e KSAs)</td>
+  </tr>
+  <tr>
+    <td align="center"><code>iam-roles</code></td>
+    <td>Gerenciamento de permissões IAM</td>
+  </tr>
+  <tr>
+    <td align="center"><code>common</code></td>
+    <td>Centralização de variáveis e configurações</td>
+  </tr>
+</table>
 
 Esta separação permite que cada componente seja desenvolvido, testado e mantido independentemente, facilitando a manutenção e reduzindo o risco de mudanças não intencionais.
 
-### 2. Gerenciamento Declarativo de Permissões
+### 2. 🔑 Gerenciamento Declarativo de Permissões
+
+<div align="center">
+<img src="https://img.shields.io/badge/Princípio-Declarativo-orange" alt="Declarativo">
+</div>
 
 O módulo `iam-roles` implementa uma abordagem declarativa para gerenciar permissões:
 
-- **`roles_to_add`**: Lista de roles IAM que devem ser concedidas à service account
-- **`roles_to_remove`**: Lista de roles IAM que devem ser explicitamente removidas
-- **Uso de `google_project_iam_binding`**: Garante que o Terraform gerencie completamente o ciclo de vida das permissões
+<table>
+  <tr>
+    <th align="center">🎁 Recurso</th>
+    <th align="center">📃 Descrição</th>
+  </tr>
+  <tr>
+    <td align="center"><code>roles_to_add</code></td>
+    <td>Lista de roles IAM que devem ser concedidas à service account</td>
+  </tr>
+  <tr>
+    <td align="center"><code>roles_to_remove</code></td>
+    <td>Lista de roles IAM que devem ser explicitamente removidas</td>
+  </tr>
+  <tr>
+    <td align="center"><code>google_project_iam_binding</code></td>
+    <td>Garante que o Terraform gerencie completamente o ciclo de vida das permissões</td>
+  </tr>
+</table>
 
-Esta abordagem permite:
-- Controle granular sobre as permissões
-- Remoção explícita de roles não desejadas
-- Evitar permissões “zumbi” que persistem mesmo após serem removidas do código
+<div align="center">
 
-### 3. Centralização de Variáveis e Configurações
+#### ✨ Benefícios
+
+</div>
+
+- 🎟️ Controle granular sobre as permissões
+- 🚫 Remoção explícita de roles não desejadas
+- 🤖 Evitar permissões "zumbi" que persistem mesmo após serem removidas do código
+
+### 3. 💾 Centralização de Variáveis e Configurações
+
+<div align="center">
+<img src="https://img.shields.io/badge/Princípio-DRY-brightgreen" alt="DRY">
+</div>
 
 O módulo `common` centraliza todas as variáveis e configurações compartilhadas:
 
-- **Variáveis de projeto**: `project_id`, `region`, `zone`
-- **Configuração do Workload Identity**: `workload_identity_pool`
-- **Configuração do provider Kubernetes**: Dados de conexão com o cluster GKE (marcado como sensível)
+<table>
+  <tr>
+    <th align="center">📊 Categoria</th>
+    <th align="center">📃 Variáveis</th>
+  </tr>
+  <tr>
+    <td align="center">Projeto</td>
+    <td><code>project_id</code>, <code>region</code>, <code>zone</code></td>
+  </tr>
+  <tr>
+    <td align="center">Workload Identity</td>
+    <td><code>workload_identity_pool</code></td>
+  </tr>
+  <tr>
+    <td align="center">Kubernetes</td>
+    <td>Dados de conexão com o cluster GKE (sensível)</td>
+  </tr>
+</table>
 
-Benefícios:
-- Eliminação de duplicação de código (DRY - Don't Repeat Yourself)
-- Consistência garantida entre todas as aplicações
-- Facilidade de manutenção: mudanças em um único lugar são refletidas em todo o projeto
+<div align="center">
+
+#### ✨ Benefícios
+
+</div>
+
+- 📚 **DRY (Don't Repeat Yourself)**: Eliminação de duplicação de código
+- 🔗 **Consistência**: Garantida entre todas as aplicações
+- 👷 **Facilidade de manutenção**: Mudanças em um único lugar são refletidas em todo o projeto
 
 ### 4. Princípio do Privilégio Mínimo
 
@@ -130,33 +310,47 @@ Todas as aplicações (`sre-app`, `sre-app2`, etc.) seguem o mesmo padrão de co
 
 Esta padronização facilita o onboarding de novos desenvolvedores e a criação de novas aplicações, além de garantir consistência em todo o projeto.
 
-## Pré-requisitos
+## 📝 Pré-requisitos
 
-1. Cluster GKE com Workload Identity habilitado
-2. Permissões para criar e gerenciar Service Accounts no Google Cloud
-3. Permissões para conceder roles IAM às Service Accounts
-4. Kubernetes Provider configurado para acessar o cluster GKE
-5. Backend GCS configurado para armazenamento do estado do Terraform
+<div align="center">
 
-## Variáveis
+| 🔰 | Requisito |
+|:---:|:---|
+| 📡 | Cluster GKE com Workload Identity habilitado |
+| 🔑 | Permissões para criar e gerenciar Service Accounts no Google Cloud |
+| 🔐 | Permissões para conceder roles IAM às Service Accounts |
+| ⚙️ | Kubernetes Provider configurado para acessar o cluster GKE |
+| 💾 | Backend GCS configurado para armazenamento do estado do Terraform |
 
-### Obrigatórias
+</div>
 
-| Nome | Descrição |
-|------|-----------|
-| `project_id` | ID do projeto Google Cloud |
-| `workload_identity_pool` | ID do pool de identidade do Workload Identity |
+## 💬 Variáveis
 
-### Opcionais
+<div align="center">
 
-| Nome | Descrição | Valor padrão |
-|------|-----------|-------------|
-| `region` | Região do Google Cloud | `us-central1` |
-| `zone` | Zona do Google Cloud | `us-central1-c` |
+### ⚠️ Obrigatórias
 
-## Uso
+| Nome | Descrição | Tipo |
+|:------:|:-----------:|:----:|
+| `project_id` | ID do projeto Google Cloud | string |
+| `workload_identity_pool` | ID do pool de identidade do Workload Identity | string |
 
-### Configuração básica
+### ⚙️ Opcionais
+
+| Nome | Descrição | Valor padrão | Tipo |
+|:------:|:-----------:|:-------------:|:----:|
+| `region` | Região do Google Cloud | `us-central1` | string |
+| `zone` | Zona do Google Cloud | `us-central1-c` | string |
+
+</div>
+
+## 💻 Uso
+
+<div align="center">
+
+### 🔗 Configuração Básica
+
+</div>
 
 ```hcl
 module "workload_identity" {
@@ -372,8 +566,30 @@ Para rotar uma Google Service Account:
 2. Use o comando `kubectl describe pod POD_NAME -n NAMESPACE` para verificar eventos relacionados à inicialização
 3. Teste a autenticação manualmente executando um pod temporário com a KSA configurada
 
-## Referências
+## 📖 Referências
 
-- [Documentação oficial do Google Cloud sobre Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
-- [Melhores práticas de segurança para GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/security-overview)
-- [Guia para migração de chaves de serviço para Workload Identity](https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-engine-now-supports-workload-identity)
+<div align="center">
+
+| 📓 Documentação | 🔗 Link |
+|:---:|:---|
+| <img src="https://www.gstatic.com/devrel-devsite/prod/ve6ddf5f5b5c5ffabfd28986a1fd32b0b1c00a134c201ec32a8d2a2a5a9d5a1e5/cloud/images/favicons/onecloud/favicon.ico" width="16"> | [Documentação oficial do Google Cloud sobre Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) |
+| <img src="https://www.gstatic.com/devrel-devsite/prod/ve6ddf5f5b5c5ffabfd28986a1fd32b0b1c00a134c201ec32a8d2a2a5a9d5a1e5/cloud/images/favicons/onecloud/favicon.ico" width="16"> | [Melhores práticas de segurança para GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/security-overview) |
+| <img src="https://www.gstatic.com/devrel-devsite/prod/ve6ddf5f5b5c5ffabfd28986a1fd32b0b1c00a134c201ec32a8d2a2a5a9d5a1e5/cloud/images/favicons/onecloud/favicon.ico" width="16"> | [Guia para migração de chaves de serviço para Workload Identity](https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-engine-now-supports-workload-identity) |
+
+</div>
+
+<div align="center">
+
+---
+
+<p>
+  <img src="https://img.shields.io/badge/Terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform">
+  <img src="https://img.shields.io/badge/GKE-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white" alt="GKE">
+  <img src="https://img.shields.io/badge/IAM-FFBA01?style=for-the-badge&logo=google-cloud&logoColor=white" alt="IAM">
+</p>
+
+<p>
+  Desenvolvido por <a href="https://github.com/antoniodelfim">Antonio Delfim</a> ❤️
+</p>
+
+</div>
