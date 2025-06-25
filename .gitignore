@@ -1,0 +1,37 @@
+# Arquivos de estado do Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Arquivos de log
+*.log
+
+# Arquivos de crash do Terraform
+crash.log
+
+# Arquivos de variáveis que podem conter dados sensíveis
+*.tfvars
+*.tfvars.json
+
+# Arquivos de override que podem conter dados sensíveis
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Arquivos de configuração CLI
+.terraformrc
+terraform.rc
+
+# Arquivos de credenciais
+credentials.json
+*.pem
+*.key
+
+# Arquivos de ambiente
+.env
+.envrc
+
+# Diretórios de dependências
+.terraform/
