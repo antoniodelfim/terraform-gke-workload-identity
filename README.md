@@ -7,8 +7,6 @@
 [![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-<img src="https://cloud.google.com/static/kubernetes-engine/images/federated-identity.svg" alt="Workload Identity Diagram" width="450px">
-
 </div>
 
 ## 📋 Visão geral
